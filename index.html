@@ -1,0 +1,2446 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#075e54">
+<title>小五中文｜臥底聊天室</title>
+
+<style>
+:root{
+  --bg:#dce5e0;
+  --card:#fff;
+  --ink:#203a2b;
+  --muted:#63756d;
+  --primary:#087f62;
+  --line:#dce6df;
+  --good:#08764c;
+  --bad:#b23838;
+  --chat-paper:#eee9df;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;
+  padding-bottom:90px;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif;
+  line-height:1.75;
+}
+button{
+  font:inherit;
+  cursor:pointer;
+  min-height:46px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 15px;
+  background:#fff;
+  color:var(--ink);
+}
+button:hover:not(:disabled){
+  border-color:#16906a;
+  background:#edf9f0;
+}
+button:focus-visible,summary:focus-visible{
+  outline:3px solid #dc9b17;
+  outline-offset:3px;
+}
+button:disabled{cursor:default}
+.primary{
+  background:var(--primary);
+  color:#fff;
+  border-color:var(--primary);
+  border-radius:24px;
+  padding:11px 21px;
+  box-shadow:0 2px 4px #0b5e3320;
+}
+.primary:hover:not(:disabled){background:#06674f;color:#fff}
+.primary:disabled{
+  background:#e2e9e4;
+  color:#728078;
+  border-color:#d8e1db;
+  box-shadow:none;
+}
+button.danger{
+  color:#a73335;
+  border-color:#e3bab8;
+  background:#fff8f6;
+}
+button.danger:hover:not(:disabled){
+  background:#ffede9;
+  border-color:#b23838;
+}
+button.danger-solid{
+  color:#fff;
+  background:#b23838;
+  border-color:#b23838;
+}
+button.danger-solid:hover:not(:disabled){
+  color:#fff;
+  background:#902b2b;
+  border-color:#902b2b;
+}
+.wrap{
+  max-width:920px;
+  min-height:100vh;
+  margin:auto;
+  padding:0 0 22px;
+  background:#f6f8f6;
+  box-shadow:0 0 35px #18392b15;
+}
+header{
+  position:relative;
+  padding:20px 22px 17px 87px;
+  background:#075e54;
+  color:#fff;
+}
+header::before{
+  content:"🕵️";
+  position:absolute;
+  top:22px;
+  left:21px;
+  display:grid;
+  place-items:center;
+  width:50px;
+  height:50px;
+  border-radius:50%;
+  background:#d9fdd3;
+  font-size:29px;
+}
+h1{margin:0;font-size:1.35rem;line-height:1.5}
+h2{font-size:1.2rem;margin:0 0 12px}
+h3{font-size:1.05rem;margin:0 0 8px}
+p{margin:8px 0}
+.small{font-size:.85rem;color:var(--muted)}
+header > p:first-of-type{
+  margin:3px 0 10px;
+  font-size:.84rem;
+  color:#d8eee5;
+}
+header .row{gap:7px 16px;font-size:.8rem}
+header > .small{color:#d1e8de;font-size:.73rem;margin:7px 0 0}
+#rank,#streak{
+  display:inline-block;
+  padding:3px 9px;
+  background:#ffffff13;
+  border-radius:20px;
+}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+
+/* 底部導覽 */
+nav.row{
+  position:fixed;
+  z-index:30;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(100%,920px);
+  margin:0;
+  padding:9px 12px;
+  padding-bottom:calc(9px + env(safe-area-inset-bottom));
+  gap:8px;
+  flex-wrap:nowrap;
+  background:#fbfdfbf5;
+  border-top:1px solid #d9e4dc;
+  box-shadow:0 -4px 18px #1734290b;
+}
+nav button{
+  flex:1;
+  min-width:0;
+  min-height:48px;
+  border:0;
+  border-radius:16px;
+  padding:8px 4px;
+  font-size:.9rem;
+  background:transparent;
+  color:#52685c;
+}
+nav button[aria-pressed="true"]{
+  background:#d9f5df;
+  color:#075e42;
+  font-weight:750;
+}
+
+/* 進度 */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+  padding:12px 14px 5px;
+  background:#fff;
+}
+.stat{text-align:center;padding:3px 7px;font-size:.79rem}
+.stat + .stat{border-left:1px solid #edf1ed}
+.stat b{
+  display:block;
+  font-size:1.35rem;
+  line-height:1.4;
+  color:#12654b;
+}
+label[for="masterBar"]{
+  display:block;
+  padding:0 20px;
+  background:#fff;
+  font-size:.72rem;
+}
+#masterBar{
+  display:block;
+  width:100%;
+  height:5px;
+  border:0;
+  border-radius:0;
+  background:#e1eae3;
+  accent-color:#25a66a;
+}
+#masterBar::-webkit-progress-bar{background:#e1eae3}
+#masterBar::-webkit-progress-value{background:#25a66a}
+#masterBar::-moz-progress-bar{background:#25a66a}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:20px;
+}
+
+/* 聊天室 */
+#gamePanel{
+  margin:0;
+  padding:20px 22px 28px;
+  border:0;
+  border-radius:0;
+  min-height:62vh;
+  background-color:var(--chat-paper);
+  background-image:
+    radial-gradient(circle at 12px 12px,#7d978817 1.4px,transparent 1.6px),
+    radial-gradient(circle at 35px 35px,#7d97880e 2px,transparent 2.2px);
+  background-size:48px 48px;
+}
+#gameArea > .row:first-child{justify-content:center;gap:8px}
+#gameArea > .row:first-child h2{
+  margin:0;
+  padding:5px 14px;
+  border-radius:9px;
+  background:#ffffffdc;
+  box-shadow:0 1px 2px #142b2010;
+  font-size:.92rem;
+  font-weight:650;
+}
+.tag{
+  display:inline-block;
+  padding:3px 9px;
+  border-radius:15px;
+  background:#eaf4ec;
+  font-size:.8rem;
+}
+#gameArea > .row:first-child .tag{
+  font-size:.74rem;
+  background:#e1f2e7;
+  color:#3d6250;
+}
+#gameArea > .small{
+  max-width:610px;
+  margin:12px auto 18px;
+  padding:8px 12px;
+  border-radius:9px;
+  text-align:center;
+  font-size:.79rem;
+  color:#655d44;
+  background:#fff6d7;
+}
+.chat{display:grid;gap:15px;margin:18px 0 23px}
+.bubble{
+  position:relative;
+  width:88%;
+  max-width:650px;
+  margin:0;
+  padding:11px 14px 12px;
+  border-radius:0 13px 13px 13px;
+  background:#fff;
+  box-shadow:0 1px 2px #0b241724;
+}
+.bubble::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-8px;
+  width:0;
+  height:0;
+  border-top:10px solid #fff;
+  border-left:8px solid transparent;
+}
+.bubble:nth-child(2){margin-left:13px}
+.bubble:nth-child(3){margin-left:5px}
+.bubble .name{
+  display:block;
+  color:#137b66;
+  font-size:.83rem;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.bubble:nth-child(2) .name{color:#9560a6}
+.bubble:nth-child(3) .name{color:#a45c25}
+.bubble p{margin:0;font-size:1.05rem;line-height:1.85}
+.bubble strong{
+  font-weight:800;
+  background:#edf7ef;
+  border-radius:4px;
+  padding:0 3px;
+}
+.bubble.error{border:2px solid #ca6a62;background:#fff8f5}
+.bubble.error::before{border-top-color:#ca6a62}
+.bubble.error .name::after{
+  content:" · 本回合誤用";
+  color:#a43630;
+  font-size:.76rem;
+}
+
+/* 任務卡 */
+#work{
+  padding:19px;
+  border:1px solid #d7e6d9;
+  border-radius:15px;
+  background:#fafffb;
+  box-shadow:0 2px 7px #173b2510;
+}
+#work::before{
+  content:"🤖 偵探助手 · 學習任務";
+  display:block;
+  margin-bottom:12px;
+  padding-bottom:10px;
+  border-bottom:1px solid #e3ece5;
+  color:#567362;
+  font-size:.8rem;
+  font-weight:650;
+}
+#work h3{font-size:1.08rem;line-height:1.7;margin:9px 0 6px}
+.step{
+  display:inline-block;
+  background:#dbf4e5;
+  color:#11683e;
+  font-size:.75rem;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:20px;
+}
+.choices{display:grid;gap:10px;margin-top:14px}
+.choice{
+  width:100%;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid #d7e2d9;
+  border-radius:12px;
+  padding:12px 13px;
+  background:#fff;
+  line-height:1.75;
+}
+.choice .letter{
+  flex-shrink:0;
+  min-width:28px;
+  text-align:center;
+  border-radius:50%;
+  background:#edf5ef;
+  color:#376048;
+  font-size:.86rem;
+  font-weight:800;
+}
+.choice.selected{border:2px solid #12865b;background:#dcf8c6}
+.choice.correct{border:2px solid #188654;background:#e7f9ec}
+.choice.wrong{border:2px solid #bd5147;background:#fff0ed}
+.choice:disabled{opacity:1}
+#suspects{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin-top:15px;
+}
+#suspects .choice{
+  display:block;
+  text-align:center;
+  padding:11px 5px;
+  font-size:.94rem;
+}
+.actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:17px;
+}
+.feedback{
+  margin-top:14px;
+  border-radius:12px;
+  padding:14px;
+  background:#e9f3ee;
+  border:1px solid #c9ded0;
+  font-size:.94rem;
+}
+.feedback.good{background:#dcf8c6;border-color:#bbdeb0}
+.feedback.teach{background:#fff6df;border-color:#e9d59a}
+.feedback strong{color:#176143}
+
+/* 進度簿 */
+#bookPanel,#helpPanel{
+  margin:16px;
+  box-shadow:0 2px 8px #18382308;
+}
+.bank{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:12px;
+  margin-top:18px;
+}
+.wordcard{
+  border:1px solid var(--line);
+  padding:14px;
+  background:#fbfefb;
+  border-radius:13px;
+}
+.wordcard h3{display:flex;justify-content:space-between;gap:8px}
+details{margin-top:10px}
+summary{cursor:pointer;color:#087450;padding:5px 0}
+.notice{
+  padding:10px 14px;
+  border-radius:12px;
+  background:#fff3d9;
+  margin:10px 14px;
+}
+footer{
+  text-align:center;
+  color:var(--muted);
+  padding:16px 18px;
+  font-size:.76rem;
+}
+
+/* 歡迎及重置確認對話框 */
+.app-dialog{
+  width:min(430px,calc(100% - 32px));
+  max-height:calc(100vh - 32px);
+  max-height:calc(100dvh - 32px);
+  padding:0;
+  overflow-y:auto;
+  border:none;
+  border-radius:20px;
+  background:var(--chat-paper);
+  color:var(--ink);
+  font-family:inherit;
+  box-shadow:0 16px 60px #0004;
+}
+.app-dialog::backdrop{background:#102b23b3}
+.dialog-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:18px 20px;
+  background:#075e54;
+  color:#fff;
+}
+.dialog-avatar{
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  background:#d9fdd3;
+  font-size:28px;
+}
+.dialog-header h2{margin:0;color:#fff;font-size:1.2rem}
+.dialog-header p{margin:3px 0 0;color:#d8eee5;font-size:.85rem}
+.dialog-content{padding:20px}
+.dialog-message{
+  margin:0 0 14px;
+  padding:14px 16px;
+  border-radius:0 14px 14px 14px;
+  background:#fff;
+  line-height:1.8;
+  box-shadow:0 1px 3px #0001;
+}
+.welcome-steps{margin:0;padding-left:1.5em}
+.welcome-steps li + li{margin-top:10px}
+.dialog-note{
+  margin:0 0 18px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#d9fdd3;
+  line-height:1.7;
+}
+#detectiveWelcomeStart{width:100%;font-weight:700}
+.dialog-buttons{display:flex;gap:10px;flex-wrap:wrap}
+.dialog-buttons button{flex:1;min-width:130px}
+.reset-warning{background:#fff0e8;color:#843525}
+#resetDialog ul{margin:8px 0;padding-left:1.4em}
+
+@media(min-width:700px){
+  body{padding-top:22px}
+  .wrap{
+    min-height:calc(100vh - 22px);
+    border-radius:18px 18px 0 0;
+    overflow:hidden;
+  }
+  #gamePanel{padding:23px 38px 30px}
+  #work{max-width:710px;margin-left:auto}
+}
+@media(max-width:540px){
+  .wrap{padding:0 0 12px}
+  header{padding:15px 13px 13px 73px}
+  header::before{
+    left:14px;top:19px;width:44px;height:44px;font-size:25px;
+  }
+  h1{font-size:1.13rem}
+  header .row{font-size:.73rem;gap:6px}
+  #rank,#streak{padding:3px 7px}
+  #gamePanel{padding:16px 13px 23px}
+  .bubble{width:94%;padding:11px 12px}
+  .bubble p{font-size:1.02rem}
+  #work{padding:15px 12px}
+  #suspects{gap:6px}
+  #suspects .choice{font-size:.86rem}
+  .choice{font-size:.96rem}
+  #bookPanel,#helpPanel{margin:12px;padding:15px}
+  nav button{font-size:.82rem}
+}
+@media(prefers-reduced-motion:no-preference){
+  .bubble{animation:appear .25s ease-out both}
+  .bubble:nth-child(2){animation-delay:.08s}
+  .bubble:nth-child(3){animation-delay:.16s}
+  @keyframes appear{
+    from{opacity:0;transform:translateY(7px)}
+    to{opacity:1;transform:none}
+  }
+}
+@media print{
+  body{padding:0;background:#fff}
+  .wrap{box-shadow:none;max-width:none}
+  nav,header::before,#bookActions,.app-dialog{display:none!important}
+  header{padding:15px;color:#000;background:#fff}
+  header .small,header > p:first-of-type{color:#444}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <h1>小五中文・臥底聊天室</h1>
+    <p>群組成員：小明、心怡、仔仔和你</p>
+    <div class="row between">
+      <span id="rank">偵探等級：實習偵探</span>
+      <span id="streak">🔥 連續一次過破案：0</span>
+    </div>
+    <p class="small">
+      找出用錯詞語或成語的「臥底」（不代表他是壞人）。
+    </p>
+  </header>
+
+  <div id="storageNotice" class="notice" role="status" hidden></div>
+
+  <nav class="row" aria-label="主要頁面">
+    <button type="button" id="gameTab" aria-pressed="true">💬 聊天室</button>
+    <button type="button" id="bookTab" aria-pressed="false">📚 學習紀錄</button>
+    <button type="button" id="helpTab" aria-pressed="false">💡 玩法</button>
+  </nav>
+
+  <div class="stats">
+    <div class="stat"><b id="masterCount">0</b>🏆 已掌握</div>
+    <div class="stat"><b id="practiceCount">0</b>✏️ 練習中</div>
+    <div class="stat"><b id="newCount">36</b>📘 待學習</div>
+  </div>
+  <label for="masterBar">掌握進度</label>
+  <progress id="masterBar" max="36" value="0"></progress>
+
+  <main>
+    <section id="gamePanel" class="card">
+      <div id="gameArea">
+        <h2>準備進入聊天室</h2>
+        <p>
+          程式載入中。如長時間停留在此，請確認完整程式碼已儲存，
+          並使用支援 JavaScript 的瀏覽器。
+        </p>
+      </div>
+    </section>
+
+    <section id="bookPanel" class="card" hidden></section>
+
+    <section id="helpPanel" class="card" hidden>
+      <h2>💡 不是鬥快，而是找證據</h2>
+      <ol>
+        <li>
+          <b>讀完整段對話：</b>
+          三句說的是同一件事，每句都有範圍內的詞語，但只有一句用錯。
+        </li>
+        <li>
+          <b>找出臥底：</b>
+          判斷誰的用詞與他描述的情況不符。
+        </li>
+        <li>
+          <b>指出理由：</b>
+          選出能同時解釋詞義與對話矛盾的理由。
+        </li>
+        <li>
+          <b>情境實戰：</b>
+          換一件新事情，再判斷詞語怎樣使用。
+        </li>
+        <li>
+          <b>隔回合覆習：</b>
+          稍後再做另一個情境，確認不是只記住剛才的答案。
+        </li>
+      </ol>
+      <p>
+        答錯不扣分，會展示意思、對話證據和改句。
+        看過答案後的練習不直接當作獨立掌握證據。
+      </p>
+      <p>
+        首次三步全部答對，再通過一次相隔至少三個其他回合的覆習，
+        才列為「已掌握」。若首次有錯，則需要之後連續通過兩次延後覆習。
+      </p>
+      <h3>💾 次序及進度怎樣儲存？</h3>
+      <p>
+        第一次開啟時，36組題目會隨機排列並立即儲存。
+        再次開啟或重新整理時，會保留原來的次序及已完成進度。
+        未答完的回合會從同一回合的開頭重新開始。
+      </p>
+      <p>
+        同一組內三位同學的對話不會打亂，避免破壞前因後果。
+        作答選項仍會隨機排列，延後覆習則按學習情況插入。
+      </p>
+      <h3>↺ 想重新開始？</h3>
+      <p>
+        到「學習紀錄」按「重置學習任務」。
+        只有再次按下「確定重置」才會清除進度，並重新隨機排列題目。
+        按「保留進度」或關閉確認框都不會重置。
+      </p>
+      <p class="small">
+        進度只儲存在目前瀏覽器。清除瀏覽器資料、使用不同瀏覽器，
+        或瀏覽器不允許本機儲存時，可能無法保留進度。
+      </p>
+      <p class="small">
+        原工作紙的空白改正頁沒有題目，因此本遊戲沒有自行加入所謂「原卷錯字」。
+      </p>
+      <button type="button" id="showWelcomeButton">🕵️ 再看簡易玩法</button>
+    </section>
+  </main>
+
+  <footer>
+    🔒 本機學習遊戲，非真實通訊服務｜18個成語＋18個詞語｜離線可用
+  </footer>
+
+  <noscript>
+    <p class="notice">請啟用 JavaScript 才能遊玩。</p>
+  </noscript>
+</div>
+
+<!-- 簡易玩法 -->
+<dialog
+  id="detectiveWelcome"
+  class="app-dialog"
+  aria-labelledby="detectiveWelcomeTitle"
+  aria-describedby="detectiveWelcomeIntro"
+>
+  <div class="dialog-header">
+    <span class="dialog-avatar" aria-hidden="true">🕵️</span>
+    <div>
+      <h2 id="detectiveWelcomeTitle">偵探助手</h2>
+      <p>有一個小任務交給你！</p>
+    </div>
+  </div>
+  <div class="dialog-content">
+    <p class="dialog-message" id="detectiveWelcomeIntro">
+      三位同學正在聊天，<strong>只有一位用錯詞語</strong>。
+      你能找出來嗎？
+    </p>
+    <div class="dialog-message">
+      <ol class="welcome-steps">
+        <li><strong>讀一讀 👀</strong><br>看完三位同學說的話。</li>
+        <li><strong>找一找 🔍</strong><br>選出用錯詞語的人，再選出原因。</li>
+        <li><strong>試一試 💬</strong><br>換個新情境，再答一題！</li>
+      </ol>
+    </div>
+    <p class="dialog-note">
+      🌟 不用鬥快，答錯也不扣分！<br>
+      我會告訴你原因，陪你再試。
+    </p>
+    <button type="button" id="detectiveWelcomeStart" class="primary" autofocus>
+      知道了，開始查案！
+    </button>
+  </div>
+</dialog>
+
+<!-- 重置確認：只有明確按下「確定重置」才清除資料 -->
+<dialog
+  id="resetDialog"
+  class="app-dialog"
+  aria-labelledby="resetDialogTitle"
+  aria-describedby="resetDialogDescription resetDialogWarning"
+>
+  <div class="dialog-header">
+    <span class="dialog-avatar" aria-hidden="true">↺</span>
+    <div>
+      <h2 id="resetDialogTitle">要重新開始嗎？</h2>
+      <p>先確認一下，避免不小心清除。</p>
+    </div>
+  </div>
+  <div class="dialog-content">
+    <div class="dialog-message" id="resetDialogDescription">
+      重置後，這些紀錄都會清除：
+      <ul>
+        <li>已掌握和練習紀錄</li>
+        <li>已完成的回合</li>
+        <li>目前和最高連勝次數</li>
+      </ul>
+      題目也會重新隨機排列。
+    </div>
+    <p class="dialog-note reset-warning" id="resetDialogWarning">
+      <strong>⚠️ 清除後不能復原。</strong><br>
+      不想清除的話，請按「保留進度」。
+    </p>
+    <div class="dialog-buttons">
+      <button type="button" id="cancelReset" autofocus>保留進度</button>
+      <button type="button" id="confirmReset" class="danger-solid">確定重置</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+"use strict";
+
+/*
+資料格式：
+w 詞語；m 意思；title 場景；
+b 唯一誤用句索引（0、1、2）；
+d 三句連貫對話；
+r 三個理由（第1項正確，顯示時打亂）；
+fix 替換錯誤詞語的說法；
+yes 兩個正確的新情境；
+no 兩個錯誤的新情境。
+【】內文字為工作紙詞語。
+*/
+const DATA=[
+{
+w:"事半功倍",m:"花費較少氣力，收到較大的成效。",title:"搬運圖書",b:2,
+d:[
+"我找到搬書的【要訣】了：先分類，再用手推車整批運送。",
+"這樣真好！請【邀請】另外兩位同學一起幫忙。",
+"我們以前半小時搬完，今天卻花了兩小時才搬同樣數量，效率降低了，真是【事半功倍】。"
+],
+r:[
+"這個成語指用較少氣力取得較大成效，句中卻是花更多時間、效率更低。",
+"只要最後搬完圖書，無論花多少時間都算事半功倍。",
+"事半功倍只可以形容讀書，不能形容搬運工作。"
+],
+fix:"事倍功半",
+yes:[
+"工人改用合適工具，花一半時間便完成比以前更多的工作。",
+"小組先訂清楚分工，用較少時間完成更多資料整理。"
+],
+no:[
+"小組多花一倍時間，卻只完成以前一半的工作。",
+"小組花的時間和完成的工作量都與以前相同。"
+]
+},
+{
+w:"青出於藍",m:"學生的成就超越老師，或後輩優於前輩。",title:"書法師徒展",b:1,
+d:[
+"這位徒弟每天練字，【持之以恆】，今天終於參展了。",
+"不過他的字仍比教他的師傅差得多，完全未超越師傅，真是【青出於藍】。",
+"先別只看勝負，你看他握筆時專注的【神態】，就知道他很認真。"
+],
+r:[
+"青出於藍須有學生超越老師的意思，句中明說徒弟仍遠遜師傅。",
+"只要是師傅教過的學生，無論表現如何都算青出於藍。",
+"青出於藍指作品一定要使用藍色墨水。"
+],
+fix:"尚未及得上師傅",
+yes:[
+"小琴向老師學鋼琴多年，如今她的演奏水平已超越老師。",
+"年輕木匠承傳師傅的手藝後再改良，技術比師傅更高明。"
+],
+no:[
+"學生進步了，但老師的水平仍遠高於他。",
+"兩位從未有師徒關係的同齡選手取得相同成績。"
+]
+},
+{
+w:"明知故犯",m:"明知行為不對或違反規則，仍故意去做。",title:"第一次到展館",b:0,
+d:[
+"弟弟第一次來展館，既沒有看到告示，也不知道不能拍照，拍了一張便立即道歉，這叫【明知故犯】。",
+"職員向我們【擺手】，示意先別拍照，再帶我們去看參觀規則。",
+"弟弟有點【膽怯】，躲在我身後，小聲答應會遵守。"
+],
+r:[
+"明知故犯須事先知道不對，弟弟事前並不知道規則。",
+"只要做了不合規則的事，就一定是明知故犯。",
+"做錯後道歉，就表示之前不可能知道規則。"
+],
+fix:"無心之失",
+yes:[
+"小強知道球場禁止踢球，仍故意在裏面踢球。",
+"小美已聽懂考試不能交談的規則，卻仍故意跟同桌聊天。"
+],
+no:[
+"旅客看不懂告示，不知道不能進入，誤闖後立即退出。",
+"學生想碰展品，聽完禁止觸碰的提醒後便收回手。"
+]
+},
+{
+w:"花言巧語",m:"虛假而動聽、用來哄騙或討好別人的話。",title:"失物招領",b:2,
+d:[
+"我把拾到錢包的經過說清楚，還【邀請】在場的同學一起作證。",
+"失主接過錢包，臉上滿是【喜悅】。",
+"你的話句句真實，也沒有哄騙或討好的意思，真是【花言巧語】。"
+],
+r:[
+"花言巧語含有虛假哄騙的意思，句中卻強調真實而沒有哄騙。",
+"說話只要令人高興，就一定是花言巧語。",
+"花言巧語只可以用來形容說話很大聲。"
+],
+fix:"實話實說",
+yes:[
+"商人明知貨物已損壞，仍用動聽承諾哄客人購買。",
+"騙子根本不會還錢，卻編出動聽保證哄朋友借錢給他。"
+],
+no:[
+"同學如實說明事情經過，沒有誇大或隱瞞。",
+"老師真誠肯定學生的進步，並提出具體建議。"
+]
+},
+{
+w:"杯水車薪",m:"力量太小，無法有效解決眼前的大問題。",title:"旱地灌溉",b:1,
+d:[
+"烈日下，我們用帆布【遮蓋】幼苗，減少水分流失。",
+"新水泵送來充足的水，所有田地都灌溉好了，缺水問題完全解決，真是【杯水車薪】。",
+"太好了！大家的【神態】都輕鬆下來了。"
+],
+r:[
+"杯水車薪指力量不足，句中卻有充足的水並已完全解決問題。",
+"只要事件跟水有關，就可以用杯水車薪。",
+"杯水車薪是指用最少金錢買到水泵。"
+],
+fix:"有效解決了問題",
+yes:[
+"大片農田嚴重缺水，只送來一小瓶水，根本不夠灌溉。",
+"全校需要數百本教材，卻只補充一本，遠不足以應付需要。"
+],
+no:[
+"運來足夠食物，讓所有災民都有充裕的糧食。",
+"完整修好漏水管道，徹底解決了漏水問題。"
+]
+},
+{
+w:"虎頭蛇尾",m:"開頭聲勢很大，後來卻草率收場，沒有好好完成。",title:"壁報製作",b:0,
+d:[
+"我們從構思到最後檢查都同樣認真，所有部分也做好了，這次製作真是【虎頭蛇尾】。",
+"這些紙花做得很【精巧】，可以放在壁報四角。",
+"校長看過後想【邀請】我們介紹製作方法呢！"
+],
+r:[
+"虎頭蛇尾指開始熱烈、後來草率，句中卻是由始至終認真完成。",
+"只要工作分成開頭和結尾，就可以叫虎頭蛇尾。",
+"沒有畫老虎和蛇，所以不能用虎頭蛇尾。"
+],
+fix:"有始有終",
+yes:[
+"小組開工時幹勁十足，最後卻隨便貼上幾張紙便交差。",
+"他起初認真寫遊記，最後幾天卻只潦草寫兩個字就算了。"
+],
+no:[
+"隊員由開始到收尾都仔細檢查，完成全部工作。",
+"他一開始做得不好，後來認真改進並完成作品。"
+]
+},
+{
+w:"虎視眈眈",m:"懷着不良意圖緊盯目標，等待機會奪取。",title:"生日禮物",b:2,
+d:[
+"爸爸送我的音樂盒十分【精巧】，你們想看看嗎？",
+"好啊！不過你先把它放穩，桌子正在【顫動】。",
+"妹妹只是開心欣賞，完全沒有搶奪或據為己有的意思，正【虎視眈眈】地看着它。"
+],
+r:[
+"虎視眈眈帶有伺機奪取的惡意，妹妹只是單純欣賞。",
+"只要眼睛一直望着一件東西，就一定是虎視眈眈。",
+"虎視眈眈只能形容真正的老虎，不能形容人。"
+],
+fix:"滿心歡喜",
+yes:[
+"賊人緊盯珠寶，等保安離開便想下手偷取。",
+"敵軍緊盯城池，等待守軍鬆懈便發動攻擊奪城。"
+],
+no:[
+"孩子欣賞櫥窗模型，沒有打算偷取或強搶。",
+"醫生專心觀察病人的傷口，準備為他治療。"
+]
+},
+{
+w:"刮目相看",m:"改變原有看法，以新的眼光認識或評價別人。",title:"朗誦排練",b:1,
+d:[
+"阿朗今天的朗誦很【流暢】，比上個月好多了。",
+"我以前覺得他不行，現在仍然完全不改變看法，一點進步也不承認，這就是【刮目相看】。",
+"但他能【持之以恆】地練習，我覺得應該肯定他的進步。"
+],
+r:[
+"刮目相看須改變原有評價，句中卻堅持完全不改變看法。",
+"刮目相看就是永遠只記着別人以前的缺點。",
+"刮目相看只指朗誦時眼睛看着評判。"
+],
+fix:"固執己見",
+yes:[
+"大家原以為他不會煮食，嘗過他的菜後改口稱讚他廚藝高超。",
+"教練原本低估小安，看到他大有進步後，重新肯定他的能力。"
+],
+no:[
+"老師由始至終都認為她很優秀，評價沒有改變。",
+"同學進步很多，但他仍堅持原來的負面看法。"
+]
+},
+{
+w:"事與願違",m:"實際結果跟原先的願望相反。",title:"期待的郊遊",b:0,
+d:[
+"我們希望郊遊當天天晴，結果果然天晴，一切正合心意，真是【事與願違】。",
+"陽光【和煦】，我們可以到草地吃午餐。",
+"我一想到能跟大家郊遊，心裏就充滿【喜悅】。"
+],
+r:[
+"事與願違指結果違背願望，句中結果卻正好符合願望。",
+"凡是事情有結果，就可以叫事與願違。",
+"只有下雨的事情才可以用事與願違。"
+],
+fix:"如願以償",
+yes:[
+"他希望早到，卻因交通受阻比所有人都遲到。",
+"她想剪短頭髮方便整理，結果新髮型反而更難打理。"
+],
+no:[
+"他希望考入心儀學校，最後成功獲取錄。",
+"她計劃星期日完成模型，結果如期完成。"
+]
+},
+{
+w:"忠言逆耳",m:"真誠正直的勸告聽來不順耳，令人不易接受。",title:"比賽後的提醒",b:2,
+d:[
+"教練想【邀請】我們留下，談談今天的表現。",
+"我一輸球便【拂袖而去】，現在想想，應該先聽他的分析。",
+"對手故意造謠辱罵我們，既不真實，也不是勸告，這些話真是【忠言逆耳】。"
+],
+r:[
+"忠言逆耳須是真誠有益的勸告，故意造謠辱罵不屬於忠言。",
+"凡是讓人不高興的話，都是忠言逆耳。",
+"忠言逆耳表示說話者必須是比賽冠軍。"
+],
+fix:"惡意中傷",
+yes:[
+"朋友直言他經常遲到會失去別人信任，他聽着難受，但知道提醒是對的。",
+"老師指出她只顧速度不顧準確，她起初不高興，後來明白建議有道理。"
+],
+no:[
+"同學捏造事實侮辱別人，並無提出任何勸告。",
+"朋友真心稱讚他進步，他聽了十分高興，毫不抗拒。"
+]
+},
+{
+w:"故態復萌",m:"曾經改掉的老毛病或舊習慣再次出現。",title:"收拾抽屜",b:1,
+d:[
+"你的抽屜收拾得很好，連這個【精巧】的小盒子都有固定位置。",
+"我從來沒有亂放文具，今天第一次不小心把筆放錯，真是【故態復萌】。",
+"那就放回原位吧，整理的【要訣】是每件物品都有固定的家。"
+],
+r:[
+"故態復萌須有舊毛病改掉後再出現，句中是從未有過的首次失誤。",
+"任何第一次犯的小錯，都可以叫故態復萌。",
+"故態復萌是指抽屜裏出現了植物的新芽。"
+],
+fix:"偶一失誤",
+yes:[
+"他以前愛插嘴，改正一段時間後，最近又常打斷別人。",
+"她曾改掉亂丟垃圾的習慣，如今卻再次隨手亂丟。"
+],
+no:[
+"他一向守時，今天第一次因列車故障而遲到。",
+"她改掉咬筆的習慣後，一直沒有再犯。"
+]
+},
+{
+w:"易如反掌",m:"形容事情非常容易做到。",title:"挑戰大拼圖",b:0,
+d:[
+"這盒拼圖難極了，我們花了三星期仍拼不出來，真是【易如反掌】。",
+"別灰心，我們每天拼一點，【持之以恆】，總會有進展。",
+"不如先找邊框，這可能是解題的【要訣】。"
+],
+r:[
+"易如反掌形容非常容易，句中卻明說極難且長時間未完成。",
+"只要用手來完成的事，都叫易如反掌。",
+"事情做得越久，就越能證明易如反掌。"
+],
+fix:"困難重重",
+yes:[
+"熟練的裁縫很快便縫好一顆鈕扣，覺得毫不費力。",
+"對已熟記乘數表的小晴來說，算出三乘四十分容易。"
+],
+no:[
+"大家反覆嘗試多天，仍無法解開複雜機關。",
+"他第一次學游泳，練了很久仍十分吃力。"
+]
+},
+{
+w:"拂袖而去",m:"因生氣或不滿而離開。",title:"聚會道別",b:2,
+d:[
+"今天能見到老朋友，大家都滿心【喜悅】。",
+"班長還【邀請】我們下個月再來聚會。",
+"阿美全程開心，沒有絲毫不滿，最後笑着道別，便【拂袖而去】。"
+],
+r:[
+"拂袖而去帶有生氣離開的意思，阿美卻心情愉快、沒有不滿。",
+"只要有人離開聚會，不論心情如何都叫拂袖而去。",
+"只有穿長袖衣服的人才可以拂袖而去。"
+],
+fix:"愉快地離開",
+yes:[
+"他與人意見不合，氣得不再說話，轉身離開會議室。",
+"客人遭到無理侮辱，憤怒地站起來離開餐廳。"
+],
+no:[
+"學生向老師道謝後，高高興興地回家。",
+"他因要趕車，平靜地向朋友道別離開。"
+]
+},
+{
+w:"沾沾自喜",m:"自以為表現不錯而十分得意。",title:"閱讀比賽得獎",b:1,
+d:[
+"小晴得獎後還每天閱讀，真能【持之以恆】。",
+"她並沒有自滿或得意，一直謙虛地請教別人，真是【沾沾自喜】。",
+"她也【邀請】同學一起分享好書，不把獎項當作停止學習的理由。"
+],
+r:[
+"沾沾自喜指自滿得意，句中卻強調沒有得意而且保持謙虛。",
+"只要獲獎，不管態度如何都算沾沾自喜。",
+"沾沾自喜是指把閱讀獎狀貼在牆上。"
+],
+fix:"謙虛好學",
+yes:[
+"他只贏了一場比賽便得意洋洋，覺得自己天下無敵。",
+"她得到一次稱讚就自滿起來，以為再也不用改進。"
+],
+no:[
+"他獲獎後仍謙虛接受批評，沒有自滿。",
+"她替朋友成功感到高興，沒有誇耀自己。"
+]
+},
+{
+w:"後患無窮",m:"留下的問題可能帶來接連不斷的禍患。",title:"修理漏水管",b:0,
+d:[
+"水管已徹底修好，也消除了所有相關隱患，以後不會因此再出問題，真是【後患無窮】。",
+"原來先找準裂口才是修理的【要訣】。",
+"對，源頭一修好，牆壁受潮等相關問題也【迎刃而解】了。"
+],
+r:[
+"後患無窮指日後禍患不斷，句中卻已消除隱患，不會再造成問題。",
+"只要修理過東西，就一定會後患無窮。",
+"後患無窮是指修理時用了很多工具。"
+],
+fix:"再無後顧之憂",
+yes:[
+"危牆的裂縫不處理，日後可能倒塌，接連危及居民安全。",
+"有人一直隱瞞食品污染問題，任由有問題的食品流出，將持續危害健康。"
+],
+no:[
+"危險設施已拆除，相關風險也全部消除。",
+"一次小故障已徹底修復，並確認沒有留下隱患。"
+]
+},
+{
+w:"迎刃而解",m:"關鍵問題解決後，其他相關問題也容易解決。",title:"修理舞台設備",b:2,
+d:[
+"舞台前的裝飾十分【精巧】，可惜燈和音響都不能用。",
+"技師找到了【要訣】：先檢查供電總開關。",
+"總開關仍然損壞，其他故障也全都沒有解決，所有問題已經【迎刃而解】。"
+],
+r:[
+"迎刃而解須問題獲得解決，句中關鍵故障和相關問題卻全都仍在。",
+"只要找到了故障，不必修好也算迎刃而解。",
+"迎刃而解是指必須用刀切開電線才能修理。"
+],
+fix:"仍未解決",
+yes:[
+"修正系統的核心設定後，多個登入問題都順利解決了。",
+"找到計算錯誤的源頭後，帳目中一連串不符之處也容易核對清楚了。"
+],
+no:[
+"主要故障完全沒修好，其他問題也一直存在。",
+"問題越查越多，至今仍找不到處理方法。"
+]
+},
+{
+w:"相形見絀",m:"跟同類事物比較後，顯出不足。",title:"模型展覽",b:1,
+d:[
+"這兩座模型都很【精巧】，我們看看評審的比較。",
+"左邊的模型在所有比較項目都明顯更出色，完全沒有不及右邊的地方，所以左邊【相形見絀】。",
+"評審又【邀請】製作者介紹材料和結構。"
+],
+r:[
+"相形見絀形容比較後顯得較差，句中卻說左邊在所有項目都更好。",
+"比較時只要選了其中一件，就可以說它相形見絀。",
+"相形見絀只用來說兩件物品顏色相同。"
+],
+fix:"明顯勝出",
+yes:[
+"兩份同類報告放在一起，資料不足的那份明顯較差。",
+"同場比較兩張木椅，做工粗糙的那張顯得不及另一張。"
+],
+no:[
+"兩件同類作品的水準相當，分不出高下。",
+"這台機器在所有比較項目都勝過另一台，毫不遜色。"
+]
+},
+{
+w:"念念不忘",m:"心中經常記掛，一直不能忘記。",title:"翻看舊相簿",b:0,
+d:[
+"我早已完全忘記那次旅行，這些年一次也沒有想起過，真是【念念不忘】。",
+"我倒記得那天陽光【和煦】，我們一起在海邊散步。",
+"照片裏大家的【神態】都很輕鬆，看來玩得很開心。"
+],
+r:[
+"念念不忘指一直記掛，句中卻說完全忘記、從未想起。",
+"只要旅行曾經發生過，就一定是念念不忘。",
+"念念不忘表示一看見照片就必須大聲朗讀。"
+],
+fix:"忘得一乾二淨",
+yes:[
+"畢業多年後，他仍常常想起老師的鼓勵。",
+"她離鄉很久，仍一直記掛家鄉的街道和親人。"
+],
+no:[
+"他早已忘掉那件事，多年來從沒想起。",
+"她沒有留意那人的名字，轉眼便忘了。"
+]
+},
+{
+w:"若隱若現",m:"隱隱約約，時而看得見，時而看不清。",title:"觀景台遠眺",b:2,
+d:[
+"山谷原本被濃霧【籠罩】，剛才甚麼也看不見。",
+"現在霧散了，那座高塔正【屹立】在山頂。",
+"對，塔身毫無遮擋，每個細節都一直看得清清楚楚，真是【若隱若現】。"
+],
+r:[
+"若隱若現指隱約難辨，句中卻一直清晰可見，毫無遮擋。",
+"東西只要在遠處，就一定若隱若現。",
+"若隱若現表示建築物一定快要倒塌。"
+],
+fix:"清晰可見",
+yes:[
+"薄霧飄動，遠處的村屋一會兒露出，一會兒又看不清。",
+"月亮被流雲半遮半掩，時而露出淡淡輪廓。"
+],
+no:[
+"燈光充足，近處的文字每一筆都清清楚楚。",
+"窗外沒有任何遮擋，整幢大樓一直完整可見。"
+]
+},
+{
+w:"精巧",m:"製作精細巧妙。",title:"手工小屋",b:1,
+d:[
+"這間模型屋送來時，我們都充滿【喜悅】。",
+"不過它做工粗糙，接口歪斜，細節也隨便處理，真是【精巧】。",
+"不如【邀請】製作者一起看看可以怎樣改善。"
+],
+r:[
+"精巧指精細巧妙，句中卻是粗糙、歪斜和草率。",
+"只要物件體積小，就一定精巧。",
+"精巧只表示製作時用了很多材料。"
+],
+fix:"粗糙",
+yes:[
+"小木盒的接縫細密，暗格設計巧妙，每個細節都仔細完成。",
+"工匠做出微型鐘樓，雕花細緻，機關設計巧妙。"
+],
+no:[
+"玩具邊緣凹凸不平，接合歪斜，完全沒有仔細打磨。",
+"紙屋隨便黏合，門窗全都剪歪了。"
+]
+},
+{
+w:"擺手",m:"搖動手，常用來表示拒絕、制止或否定。",title:"車站月台",b:0,
+d:[
+"站務員雙手一直垂着，完全沒有動手，只搖了搖頭，正在【擺手】示意我們別走過去。",
+"我剛才有點【張皇失措】，差點走錯方向。",
+"幸好他提醒了我們，現在跟着指示【邁步】前進吧。"
+],
+r:[
+"擺手須有搖動手的動作，句中卻明說雙手完全沒有動。",
+"擺手只需要搖頭，不需要動手。",
+"只要是在車站做的動作，都叫擺手。"
+],
+fix:"搖頭",
+yes:[
+"店員搖動手掌，示意客人不要走進正在清潔的通道。",
+"朋友請他再吃一塊蛋糕，他搖動手表示不要了。"
+],
+no:[
+"他雙手放在口袋裏，只輕輕點頭。",
+"她雙手一動不動，只眨了眨眼。"
+]
+},
+{
+w:"無動於衷",m:"內心毫不受觸動，對事情沒有反應。",title:"操場小意外",b:2,
+d:[
+"弟弟跑步跌倒，痛得身體微微【顫動】。",
+"我有點【張皇失措】，一時不知道該怎樣幫忙。",
+"老師十分關心，立刻跑來安慰和處理傷口，絕不是不理會，真是【無動於衷】。"
+],
+r:[
+"無動於衷指不受觸動、沒有反應，老師卻十分關心並立即幫忙。",
+"只要有人受傷，旁邊的人就叫無動於衷。",
+"無動於衷只表示身體沒有發抖。"
+],
+fix:"關懷備至",
+yes:[
+"他聽見朋友求助，心裏毫不在意，也沒有任何回應。",
+"大家多次提醒他別浪費水，他毫不在乎，照樣讓水一直流。"
+],
+no:[
+"她看見同學難過，立即上前關心並陪伴他。",
+"他聽見求救聲便十分着急，馬上找人幫忙。"
+]
+},
+{
+w:"要訣",m:"做事情的重要方法或關鍵技巧。",title:"摺紙小船",b:1,
+d:[
+"你摺的小船很【精巧】，可以教教我嗎？",
+"可以，但我先說一個跟摺紙完全無關、也毫無幫助的笑話，這就是摺紙的【要訣】。",
+"說完笑話，再【邀請】你示範真正的摺法吧。"
+],
+r:[
+"要訣須是完成事情的關鍵方法，無關又無幫助的笑話不是要訣。",
+"只要有人開口說話，說的內容就是要訣。",
+"要訣表示摺紙時必須說笑話。"
+],
+fix:"無關話題",
+yes:[
+"教練指出，游泳換氣最重要的是掌握呼吸與划手的配合。",
+"師傅教他，揉麵成功的關鍵在於合適的水量和力度。"
+],
+no:[
+"他講了一段與操作完全無關、也沒有幫助的趣聞。",
+"說明書只列出包裝顏色，沒有提供任何做法或關鍵技巧。"
+]
+},
+{
+w:"邀請",m:"主動請別人前來參加活動或做客。",title:"生日會名單",b:0,
+d:[
+"我特意告訴阿文不要來生日會，也不想他參加，這就是【邀請】他。",
+"如果他收到這樣的話，恐怕不會感到【喜悅】。",
+"看他失落的【神態】，我們應該先把誤會說清楚。"
+],
+r:[
+"邀請是主動請人參加，句中卻明確叫對方不要來。",
+"只要提到活動的名稱，就算邀請別人。",
+"邀請只可以用在學校，不能用在生日會。"
+],
+fix:"拒絕",
+yes:[
+"她寫卡片請朋友星期六到家裏參加生日會。",
+"學校發信請家長到禮堂出席分享會。"
+],
+no:[
+"主辦者明確叫他不要來，也表示不歡迎他參加。",
+"他只在日記記下聚會日期，沒有請任何人前來。"
+]
+},
+{
+w:"膽怯",m:"膽小害怕，缺乏勇氣。",title:"首次舞台表演",b:2,
+d:[
+"小文準備上台前，手指不停【顫動】。",
+"他剛才說自己有點【張皇失措】，我們陪他練一次吧。",
+"好；不過我說的是我自己：我完全不害怕，勇敢又鎮定，所以我很【膽怯】。"
+],
+r:[
+"膽怯指害怕、缺乏勇氣，說話者卻強調自己毫不害怕而且勇敢。",
+"只要第一次上台，無論感受如何都一定膽怯。",
+"膽怯是指所有人的手指都必須發抖。"
+],
+fix:"勇敢",
+yes:[
+"孩子怕黑，不敢獨自走進沒有燈的房間。",
+"她害怕在陌生人面前說話，想開口卻又退縮。"
+],
+no:[
+"他毫不害怕，勇敢地主動上台示範。",
+"她鎮定而自信，面對挑戰完全沒有退縮。"
+]
+},
+{
+w:"持之以恆",m:"長久堅持下去，不輕易中斷。",title:"練習小提琴",b:1,
+d:[
+"你上次說想把樂曲拉得更【流暢】，最近練得怎樣？",
+"我只練了一天便完全放棄，往後一年也沒再練，真是【持之以恆】。",
+"那不如重新開始，請老師教你練習的【要訣】。"
+],
+r:[
+"持之以恆須長久堅持，句中卻練一天就放棄，長期沒有再練。",
+"只要曾經開始練習一次，就叫持之以恆。",
+"持之以恆表示一首樂曲只能拉一次。"
+],
+fix:"半途而廢",
+yes:[
+"他連續三年每天閱讀，即使功課繁忙也保持習慣。",
+"她學游泳遇到困難仍每星期練習，長期沒有放棄。"
+],
+no:[
+"他練了一次便嫌辛苦，之後完全放棄。",
+"她訂了計劃，卻從未實行，也不打算繼續。"
+]
+},
+{
+w:"張皇失措",m:"驚慌慌亂，不知道怎樣應付。",title:"消防演習",b:0,
+d:[
+"警鐘響起時，班長鎮定自若，清楚知道怎樣做，還有條理地指揮大家，真是【張皇失措】。",
+"他向後排同學【擺手】，示意不要奔跑。",
+"我們便跟着隊伍【邁步】走向集合處。"
+],
+r:[
+"張皇失措指慌亂、不知如何應付，班長卻鎮定而有條理。",
+"只要聽見警鐘，任何反應都算張皇失措。",
+"張皇失措指用手勢指揮隊伍。"
+],
+fix:"沉着冷靜",
+yes:[
+"他突然找不到准考證，急得團團轉，不知道下一步該做甚麼。",
+"她發現自己搭錯車，慌得語無倫次，一時不知如何求助。"
+],
+no:[
+"他遇到突發情況仍鎮定，按程序逐步處理。",
+"她清楚知道出口在哪裏，冷靜地帶大家離開。"
+]
+},
+{
+w:"屹立",m:"像山峰般高聳而穩固地直立。",title:"海邊燈塔",b:2,
+d:[
+"遠處燈塔被海霧【籠罩】，我們剛才看不清。",
+"現在霧漸漸散開，陽光也很【和煦】。",
+"原來塔身已經完全倒塌，平躺在地上，一點也沒有直立，仍然【屹立】在岸邊。"
+],
+r:[
+"屹立須高聳穩固地直立，句中塔身卻已倒塌並平躺。",
+"只要東西在岸邊，不管倒下與否都叫屹立。",
+"屹立是指塔身被霧遮住。"
+],
+fix:"倒臥",
+yes:[
+"高塔經歷多年風雨，依然高高地穩立在海岸。",
+"紀念碑高聳而穩固地直立在廣場中央。"
+],
+no:[
+"柱子已經倒下，橫躺在地上。",
+"帳篷完全塌陷，貼在地面，沒有任何直立部分。"
+]
+},
+{
+w:"顫動",m:"短促而頻密地抖動。",title:"觀察小鼓",b:1,
+d:[
+"這個小鼓的圖案很【精巧】，鼓面也繃得很緊。",
+"我觀察過了：沒有人敲鼓，鼓面完全靜止，一絲也沒動，正在【顫動】。",
+"不如【邀請】老師示範敲鼓，看看鼓面會有甚麼變化。"
+],
+r:[
+"顫動須有抖動，句中卻強調完全靜止、一絲不動。",
+"只要物件是鼓，鼓面就一定正在顫動。",
+"顫動表示物件的圖案很漂亮。"
+],
+fix:"保持靜止",
+yes:[
+"寒風中，他的手指不由自主地微微發抖。",
+"敲響小鼓後，繃緊的鼓面短促而頻密地振動。"
+],
+no:[
+"玻璃杯平穩放在桌上，完全沒有晃動。",
+"窗簾靜止不動，連一絲抖動也沒有。"
+]
+},
+{
+w:"遮蓋",m:"用東西覆在上面，使其被遮住。",title:"保護新書",b:0,
+d:[
+"我把防塵布全部拿走，沒有留下任何覆蓋物，讓書本完全露出來，這樣就是用布【遮蓋】書本。",
+"可是旁邊正在清潔，灰塵可能會【籠罩】書架。",
+"保護書本的【要訣】，應該是清潔前先把它們妥善收好。"
+],
+r:[
+"遮蓋是把東西覆上去，句中卻把布拿走，令書本完全露出。",
+"只要曾經碰過防塵布，就一定是遮蓋書本。",
+"遮蓋表示把書本每一頁讀完。"
+],
+fix:"露出",
+yes:[
+"他把防水布鋪在木材上，不讓雨水直接淋到木材。",
+"她用布覆在餐盤上，擋住飛來的灰塵。"
+],
+no:[
+"他移走桌布，讓整張桌面完全露出。",
+"她把所有覆蓋物拿開，讓物品毫無遮擋。"
+]
+},
+{
+w:"神態",m:"人的神情、表情和姿態。",title:"畫人物肖像",b:2,
+d:[
+"妹妹坐在椅子上，滿臉【喜悅】，準備讓我畫像。",
+"她手裏拿着一個【精巧】的小風車。",
+"我只記錄她昨天吃了甚麼，完全沒有畫或描述她的表情和姿態，這就是描寫她的【神態】。"
+],
+r:[
+"神態是神情和姿態，單說昨天吃過甚麼並不是描述神態。",
+"凡是關於一個人的任何資料，都一定是神態。",
+"神態只表示一個人手裏拿着甚麼玩具。"
+],
+fix:"飲食情況",
+yes:[
+"作者寫他皺着眉、抿着嘴，一副認真思考的樣子。",
+"畫家畫出老人微笑、眼神慈祥、身姿放鬆的模樣。"
+],
+no:[
+"表格只記下他的住址和電話號碼。",
+"紀錄只列出她昨天吃過的食物名稱。"
+]
+},
+{
+w:"籠罩",m:"像籠子般從四周或上方覆蓋、包圍，也可形容氣氛。",title:"晨早校園",b:1,
+d:[
+"今天陽光【和煦】，我們在操場集合吧。",
+"天空和操場都完全沒有霧，一絲霧也不存在，整個校園正被濃霧【籠罩】。",
+"但我看見旗杆清清楚楚地【屹立】在前面啊。"
+],
+r:[
+"被濃霧籠罩表示霧包圍覆蓋着，句中卻明說完全沒有霧。",
+"只要是在早上，就一定被濃霧籠罩。",
+"籠罩只能用來說真正的鳥籠，不能形容霧。"
+],
+fix:"包圍",
+yes:[
+"濃霧從四周湧來，把整條村莊包圍得朦朦朧朧。",
+"停電後，黑暗覆蓋了整座大樓，四周一片漆黑。"
+],
+no:[
+"村莊四周完全沒有霧，不能說它被濃霧包圍。",
+"整條街陽光明亮，毫無黑暗，不能說它被黑暗覆蓋。"
+],
+customFix:"天空和操場都完全沒有霧，整個校園沒有被濃霧【籠罩】。"
+},
+{
+w:"流暢",m:"語言、文字或動作順暢自然，沒有明顯停滯。",title:"故事錄音",b:0,
+d:[
+"我這次朗讀每兩個字就停很久，頻頻卡住，句子斷斷續續，真是【流暢】。",
+"你剛才有點【膽怯】，我們先關掉錄音練習吧。",
+"只要【持之以恆】地練，應該會慢慢進步。"
+],
+r:[
+"流暢指順暢自然，句中卻不斷停頓、卡住和中斷。",
+"只要讀到最後，不論中間怎樣卡住都算流暢。",
+"流暢只表示錄音機的顏色很漂亮。"
+],
+fix:"不流暢",
+yes:[
+"她講故事時語句自然連貫，沒有明顯停頓或卡住。",
+"他的文章前後連接自然，讀起來通順而不生硬。"
+],
+no:[
+"他每說兩個字就停很久，總是接不上下一句。",
+"文章句子接續生硬，多處不通順，讀起來十分吃力。"
+]
+},
+{
+w:"邁步",m:"抬腳跨出步子，向前走。",title:"準備起步",b:2,
+d:[
+"陽光【和煦】，現在開始散步最舒服。",
+"弟弟還有點【膽怯】，想先牽着我的手。",
+"他雙腳一直停在原位，沒有抬腳，也沒有跨出任何一步，正在【邁步】。"
+],
+r:[
+"邁步須跨出步子，句中雙腳一直不動，沒有踏出一步。",
+"只要打算散步，即使雙腳不動也正在邁步。",
+"邁步只能用來形容跑步，不能用來形容走路。"
+],
+fix:"原地站着",
+yes:[
+"她抬起右腳跨出一步，開始向校門走去。",
+"隊長踏出第一步，帶大家向集合處前進。"
+],
+no:[
+"他雙腳一直貼地不動，留在原位。",
+"她坐在椅子上，沒有站起，也沒有踏出任何一步。"
+]
+},
+{
+w:"和煦",m:"溫暖而柔和，常形容陽光或春風。",title:"冬日公園",b:1,
+d:[
+"我們剛走進公園，弟弟就冷得身體【顫動】。",
+"今天的風冷得刺骨，一點也不溫暖柔和，真是【和煦】。",
+"先【邁步】走到室內暖一暖吧。"
+],
+r:[
+"和煦指溫暖柔和，句中卻是刺骨寒冷，毫不溫暖。",
+"只要有風吹來，不論冷熱都可以叫和煦。",
+"和煦表示走路的速度非常快。"
+],
+fix:"寒冷",
+yes:[
+"春日的陽光溫暖柔和，照在人身上十分舒服。",
+"暖暖的春風柔柔吹過，令人感到舒適。"
+],
+no:[
+"北風刺骨，吹得大家全身發冷。",
+"烈日灼人，熱得皮膚發燙，毫不柔和。"
+]
+},
+{
+w:"喜悅",m:"高興、愉快的心情。",title:"尋找小狗",b:0,
+d:[
+"小狗走失後，我非常難過，心裏只有悲傷，完全沒有半點高興，充滿【喜悅】。",
+"別太【張皇失措】，我們先想想牠平日喜歡去哪裏。",
+"對，我們可以【邀請】鄰居一起幫忙找，並請大人陪同。"
+],
+r:[
+"喜悅是高興愉快，句中卻只有悲傷，完全沒有高興。",
+"任何強烈的心情，不管悲傷或高興都叫喜悅。",
+"喜悅表示邀請很多人一起出門。"
+],
+fix:"悲傷",
+yes:[
+"她終於見到久別的家人，心裏十分高興。",
+"他得知種下的種子發芽了，感到開心而愉快。"
+],
+no:[
+"她因失去心愛的物品而十分悲傷，毫無高興之意。",
+"他心裏只有恐懼和不安，完全不覺得愉快。"
+]
+}
+];
+
+/* ---------- 基本設定 ---------- */
+
+// 沿用舊版鍵名，保留相容的學習進度。
+const KEY="idiom_chat_rebuilt_v1";
+const names=["小明 👦","心怡 👧","仔仔 👦"];
+const $=id=>document.getElementById(id);
+const game=$("gameArea");
+
+let state;
+let current=null;
+let view="game";
+let ready=false;
+let resetBusy=false;
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g,c=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  }[c]));
+}
+
+function rich(s){
+  return esc(s).replace(/【([^】]+)】/g,"<strong>$1</strong>");
+}
+
+function shuffle(a){
+  const b=a.slice();
+  for(let i=b.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+function blank(){
+  return {
+    done:0,
+    streak:0,
+    best:0,
+    order:shuffle(DATA.map((_,i)=>i)),
+    active:null,
+    records:DATA.map(()=>({
+      seen:false,
+      pass:0,
+      master:false,
+      next:0,
+      tries:0
+    }))
+  };
+}
+
+/* ---------- 題庫檢查 ---------- */
+
+function validate(){
+  if(DATA.length!==36){
+    throw new Error("題庫應有36個詞語。");
+  }
+
+  const words=new Set(DATA.map(q=>q.w));
+  if(words.size!==36){
+    throw new Error("題庫有重複詞語。");
+  }
+
+  DATA.forEach(q=>{
+    if(
+      q.d.length!==3 ||
+      q.r.length!==3 ||
+      q.yes.length!==2 ||
+      q.no.length!==2 ||
+      !Number.isInteger(q.b) ||
+      q.b<0 ||
+      q.b>2 ||
+      !q.d[q.b].includes("【"+q.w+"】")
+    ){
+      throw new Error("題目資料不完整："+q.w);
+    }
+
+    q.d.forEach(line=>{
+      const found=[...line.matchAll(/【([^】]+)】/g)];
+      if(!found.length || found.some(m=>!words.has(m[1]))){
+        throw new Error("對話含範圍外標記："+q.w);
+      }
+    });
+  });
+}
+
+/* ---------- 儲存及舊版相容 ---------- */
+
+function notice(message){
+  $("storageNotice").hidden=false;
+  $("storageNotice").textContent=message;
+}
+
+function storageWarning(){
+  notice(
+    "目前瀏覽器無法可靠地讀寫進度。仍可遊玩，但關閉或重新整理後，"+
+    "可能遺失新紀錄，或讀回之前的舊紀錄；題目次序也可能無法保留。"
+  );
+}
+
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(state));
+    return true;
+  }catch(e){
+    storageWarning();
+    return false;
+  }
+}
+
+function validRecords(x){
+  return !!x &&
+    Number.isInteger(x.done) && x.done>=0 &&
+    Number.isInteger(x.streak) && x.streak>=0 &&
+    Number.isInteger(x.best) && x.best>=0 &&
+    Array.isArray(x.records) &&
+    x.records.length===DATA.length &&
+    x.records.every(r=>
+      r &&
+      typeof r.seen==="boolean" &&
+      typeof r.master==="boolean" &&
+      Number.isInteger(r.pass) && r.pass>=0 && r.pass<=2 &&
+      Number.isInteger(r.next) && r.next>=0 &&
+      Number.isInteger(r.tries) && r.tries>=0
+    );
+}
+
+function load(){
+  let raw;
+
+  try{
+    raw=localStorage.getItem(KEY);
+  }catch(e){
+    storageWarning();
+    return blank();
+  }
+
+  if(!raw)return blank();
+
+  try{
+    const x=JSON.parse(raw);
+
+    if(!validRecords(x)){
+      notice("舊進度格式不相容，已建立新的學習紀錄。");
+      return blank();
+    }
+
+    return x;
+  }catch(e){
+    notice("儲存的進度無法讀取，已建立新的學習紀錄。");
+    return blank();
+  }
+}
+
+function prepareSession(){
+  const validOrder=
+    Array.isArray(state.order) &&
+    state.order.length===DATA.length &&
+    new Set(state.order).size===DATA.length &&
+    state.order.every(i=>
+      Number.isInteger(i) && i>=0 && i<DATA.length
+    );
+
+  if(!validOrder){
+    // 舊版沒有保存次序，升級時只建立一次，不清除考核紀錄。
+    state.order=shuffle(DATA.map((_,i)=>i));
+
+    if(state.done>0){
+      notice(
+        "已保留原有學習進度。舊版沒有儲存題目次序，"+
+        "本次已建立並保存新的隨機次序，之後續玩不會重新洗牌。"
+      );
+    }
+  }
+
+  const a=state.active;
+  const validActive=
+    a &&
+    Number.isInteger(a.index) &&
+    a.index>=0 &&
+    a.index<DATA.length &&
+    typeof a.review==="boolean" &&
+    typeof a.maintenance==="boolean" &&
+    (a.review
+      ? state.records[a.index].seen
+      : !state.records[a.index].seen);
+
+  if(!validActive){
+    state.active=null;
+  }
+}
+
+/* ---------- 統計及分頁 ---------- */
+
+function counts(){
+  return {
+    master:state.records.filter(r=>r.master).length,
+    seen:state.records.filter(r=>r.seen).length
+  };
+}
+
+function updateStats(){
+  const c=counts();
+
+  $("masterCount").textContent=c.master;
+  $("practiceCount").textContent=c.seen-c.master;
+  $("newCount").textContent=DATA.length-c.seen;
+  $("masterBar").max=DATA.length;
+  $("masterBar").value=c.master;
+
+  const rank=
+    c.master>=36?"成語總探長 🏆":
+    c.master>=24?"資深偵探 🥇":
+    c.master>=12?"正式偵探 🔎":
+    c.master>=1?"見習探員 📒":"實習偵探 🕵️";
+
+  $("rank").textContent="偵探等級："+rank;
+  $("streak").textContent="🔥 連續一次過破案："+state.streak;
+}
+
+function setView(v){
+  view=v;
+
+  for(const id of ["game","book","help"]){
+    $(id+"Panel").hidden=id!==v;
+    $(id+"Tab").setAttribute("aria-pressed",String(id===v));
+  }
+
+  if(v==="book" && state){
+    renderBook();
+  }
+}
+
+/* ---------- 共用畫面元件 ---------- */
+
+function action(label,fn,primary=true){
+  const b=document.createElement("button");
+  b.type="button";
+  b.textContent=label;
+  if(primary)b.className="primary";
+  b.addEventListener("click",fn);
+  return b;
+}
+
+function feedback(title,html,type="teach"){
+  const box=document.createElement("div");
+  box.className="feedback "+type;
+  box.setAttribute("role","status");
+  box.innerHTML="<h3>"+esc(title)+"</h3>"+html;
+  $("work").append(box);
+}
+
+function nextAction(label,fn){
+  const div=document.createElement("div");
+  div.className="actions";
+  div.append(action(label,fn));
+  $("work").append(div);
+}
+
+function choiceList(options,callback){
+  const div=document.createElement("div");
+  div.className="choices";
+
+  const items=shuffle(options);
+  let locked=false;
+
+  items.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="choice";
+    b.innerHTML=
+      '<span class="letter">'+String.fromCharCode(65+i)+
+      '</span><span>'+rich(o.text)+"</span>";
+
+    b.addEventListener("click",()=>{
+      if(locked)return;
+      locked=true;
+
+      [...div.children].forEach((el,j)=>{
+        el.disabled=true;
+        if(items[j].correct){
+          el.classList.add("correct");
+        }
+      });
+
+      b.classList.add(o.correct?"correct":"wrong");
+      callback(o);
+    });
+
+    div.append(b);
+  });
+
+  return div;
+}
+
+function repair(q){
+  return q.customFix ||
+    q.d[q.b].replace("【"+q.w+"】","【"+q.fix+"】");
+}
+
+/* ---------- 回合畫面 ---------- */
+
+function base(q,transfer=false){
+  let title;
+  let instruction;
+
+  if(transfer){
+    title=current.review
+      ? (current.maintenance?"🌱 鞏固回合":"🔁 延後覆習")
+      : "💬 新情境實戰";
+
+    instruction=current.review
+      ? "這次不先顯示詞義，請把理解用在另一個情境。"
+      : "離開原對話，看看你能否把詞語用在新的情境。";
+  }else{
+    title="📁 "+q.title;
+    instruction="三句按對話次序排列；每句都有溫習詞語，只有一句用錯。";
+  }
+
+  game.innerHTML=`
+    <div class="row between">
+      <h2>${esc(title)}</h2>
+      <span class="tag">已完成 ${state.done} 回合</span>
+    </div>
+    <p class="small">${esc(instruction)}</p>
+    <div id="conversation"></div>
+    <div id="work"></div>
+  `;
+
+  if(!transfer){
+    $("conversation").innerHTML=
+      '<div class="chat">'+
+      q.d.map((line,i)=>`
+        <article class="bubble" id="bubble${i}">
+          <span class="name">${esc(names[i])}</span>
+          <p>${rich(line)}</p>
+        </article>
+      `).join("")+
+      "</div>";
+  }
+}
+
+function startRound(index,review=false,maintenance=false){
+  const q=DATA[index];
+  const r=state.records[index];
+
+  current={
+    index,
+    q,
+    review,
+    maintenance,
+    perfect:true,
+    stage:"detect",
+    transferOK:false,
+    complete:false,
+    variant:review?r.tries%2:0
+  };
+
+  // 一開始就儲存目前題目，未完成也不會在下次另抽一題。
+  state.active={index,review,maintenance};
+  save();
+
+  if(review){
+    base(q,true);
+    renderTransfer();
+  }else{
+    base(q,false);
+    renderDetect();
+  }
+}
+
+function renderDetect(){
+  const q=current.q;
+
+  $("work").innerHTML=`
+    <span class="step">步驟1／3</span>
+    <h3>誰的詞語用法與他描述的情況不符？</h3>
+    <p class="small">
+      先選角色，再按「確定指證」。未提交前可改選。
+    </p>
+    <div id="suspects"></div>
+    <div id="detectAction" class="actions"></div>
+  `;
+
+  let selected=-1;
+  let submitted=false;
+
+  const submit=action("確定指證 🔍",()=>{
+    if(selected<0 || submitted)return;
+    submitted=true;
+    submit.disabled=true;
+
+    [...$("suspects").children].forEach(b=>b.disabled=true);
+
+    const ok=selected===q.b;
+    current.perfect=ok;
+    $("bubble"+q.b).classList.add("error");
+
+    if(ok){
+      feedback(
+        "找到了！接着說明理由",
+        "<p>誤用的是「<b>"+esc(q.w)+
+        "</b>」。下一步要找出它與上下文矛盾的地方。</p>",
+        "good"
+      );
+    }else{
+      feedback(
+        "再看看對話中的證據",
+        "<p>本回合只有 "+esc(names[q.b])+
+        " 用錯「<b>"+esc(q.w)+"</b>」。</p>"+
+        "<p><b>詞義：</b>"+esc(q.m)+"</p>"+
+        "<p><b>矛盾：</b>"+esc(q.r[0])+"</p>"+
+        "<p>接着試着選出理由；這回合會記為練習，"+
+        "不會因看過提示就直接列作掌握。</p>"
+      );
+    }
+
+    nextAction("下一步：判斷理由 ➜",renderReason);
+  });
+
+  submit.disabled=true;
+
+  names.forEach((name,i)=>{
+    const b=action(name,()=>{
+      selected=i;
+      submit.disabled=false;
+
+      [...$("suspects").children].forEach((el,j)=>{
+        el.classList.toggle("selected",i===j);
+        el.setAttribute("aria-pressed",String(i===j));
+      });
+    },false);
+
+    b.className="choice";
+    b.setAttribute("aria-pressed","false");
+    $("suspects").append(b);
+  });
+
+  $("detectAction").append(submit);
+}
+
+function renderReason(){
+  current.stage="reason";
+  const q=current.q;
+
+  $("work").innerHTML=`
+    <span class="step">步驟2／3</span>
+    <h3>為甚麼「${esc(q.w)}」在這句用錯了？</h3>
+    <p class="small">選出能同時說明詞義與對話證據的理由。</p>
+  `;
+
+  $("work").append(
+    choiceList(
+      q.r.map((text,i)=>({text,correct:i===0})),
+      o=>{
+        if(!o.correct)current.perfect=false;
+
+        feedback(
+          o.correct?"理由正確：有詞義，也有證據":"我們把詞義和證據連起來",
+          "<p><b>意思：</b>"+esc(q.m)+"</p>"+
+          "<p><b>判斷：</b>"+esc(q.r[0])+"</p>"+
+          "<p><b>保持原情境，可改成：</b>"+rich(repair(q))+"</p>",
+          o.correct?"good":"teach"
+        );
+
+        nextAction("下一步：新情境實戰 ➜",()=>{
+          // 換頁，不讓學生邊看詞義提示邊作答。
+          base(q,true);
+          renderTransfer();
+        });
+      }
+    )
+  );
+}
+
+function renderTransfer(){
+  current.stage="transfer";
+
+  const q=current.q;
+  const good=q.yes[current.variant];
+
+  $("work").innerHTML=`
+    <span class="step">${
+      current.review
+        ? (current.maintenance?"鞏固練習":"延後覆習")
+        : "步驟3／3"
+    }</span>
+    <h3>哪個情境適合用「${esc(q.w)}」描述？</h3>
+    <p class="small">這不是原對話，請依照詞語的意思作判斷。</p>
+  `;
+
+  const options=[
+    {text:good,correct:true},
+    ...q.no.map(text=>({text,correct:false}))
+  ];
+
+  $("work").append(choiceList(options,o=>{
+    current.transferOK=o.correct;
+    if(!o.correct)current.perfect=false;
+
+    finish();
+
+    const rightReason=q.w==="籠罩"
+      ? "正確情境有四周或上方包圍、覆蓋的情況。"
+      : "正確情境符合這個詞語的核心意思。";
+
+    feedback(
+      o.correct?"✅ 能把意思用在新情境！":"📖 先理解，再在稍後重試",
+      "<p><b>「"+esc(q.w)+"」：</b>"+esc(q.m)+"</p>"+
+      "<p><b>正例：</b>"+esc(good)+"</p>"+
+      "<p>"+esc(rightReason)+"</p>"+
+      (
+        !o.correct
+          ? "<p><b>你選的情境：</b>"+esc(o.text)+"</p>"+
+            "<p>它與上面的核心意思不符。"+
+            "留意人物的實際表現，而不是只看事件名稱。</p>"
+          : ""
+      ),
+      o.correct?"good":"teach"
+    );
+
+    const r=state.records[current.index];
+    let message;
+
+    if(r.master){
+      message="🏆 已掌握！你已通過足夠的獨立考核。";
+    }else if(!current.review && !current.perfect){
+      message="✏️ 已完成教學練習，稍後會安排兩次延後覆習。";
+    }else{
+      message="✏️ 獨立考核連續通過 "+r.pass+
+        "／2 次；仍需延後覆習。";
+    }
+
+    const box=document.createElement("div");
+    box.className="feedback";
+    box.innerHTML=
+      "<p>"+esc(message)+"</p>"+
+      "<p class='small'>聊天中其他兩個用對的詞語不會自動算作已掌握；"+
+      "它們也各有自己的專題回合。</p>";
+
+    $("work").append(box);
+
+    nextAction("下一回合 ➜",()=>{
+      chooseNext();
+      window.scrollTo(0,0);
+    });
+  }));
+}
+
+/* ---------- 評核及排程 ---------- */
+
+function finish(){
+  if(current.complete)return;
+  current.complete=true;
+
+  const r=state.records[current.index];
+  r.seen=true;
+  r.tries++;
+
+  if(current.review){
+    r.pass=current.transferOK?Math.min(2,r.pass+1):0;
+  }else{
+    r.pass=current.perfect?1:0;
+  }
+
+  r.master=r.pass>=2;
+  state.done++;
+
+  // 完成本回合後，要先完成至少三個其他回合才再覆習此詞。
+  r.next=state.done+3;
+
+  if(!current.review){
+    state.streak=current.perfect?state.streak+1:0;
+    state.best=Math.max(state.best,state.streak);
+  }
+
+  // 已完成，不再視為未完成回合。
+  state.active=null;
+
+  save();
+  updateStats();
+}
+
+function orderedRecords(){
+  return state.order.map((i,position)=>({
+    i,
+    position,
+    r:state.records[i]
+  }));
+}
+
+function earliest(items){
+  return items.slice().sort((a,b)=>
+    a.r.next-b.r.next || a.position-b.position
+  );
+}
+
+function chooseNext(){
+  setView("game");
+
+  const all=orderedRecords();
+  const unseen=all.filter(x=>!x.r.seen);
+  const due=all.filter(x=>
+    x.r.seen &&
+    !x.r.master &&
+    x.r.next<=state.done
+  );
+
+  // 約每四回合插入覆習；新題做完後優先處理到期覆習。
+  if(due.length && (state.done%4===0 || !unseen.length)){
+    startRound(earliest(due)[0].i,true);
+    return;
+  }
+
+  // 新題依首次產生並保存的隨機次序出場，不再每回合另抽。
+  if(unseen.length){
+    startRound(unseen[0].i);
+    return;
+  }
+
+  const pending=all.filter(x=>!x.r.master);
+
+  if(!pending.length){
+    showComplete();
+    return;
+  }
+
+  // 以已掌握、且已相隔足夠回合的詞語填補等待間隔。
+  const fillers=all.filter(x=>
+    x.r.master &&
+    x.r.next<=state.done
+  );
+
+  if(fillers.length){
+    startRound(earliest(fillers)[0].i,true,true);
+    return;
+  }
+
+  // 完整36題的正常流程不應到這裏。
+  // 不以不足間隔的作答直接增加掌握證據。
+  current=null;
+  state.active=null;
+  save();
+
+  game.innerHTML=`
+    <h2>☕ 偵探休息站</h2>
+    <p>
+      目前沒有符合覆習間隔的題目。
+      你可以先看看學習紀錄，或下載紀錄後重新開始。
+    </p>
+    <div id="pauseButtons" class="row"></div>
+  `;
+
+  $("pauseButtons").append(
+    action("看看學習紀錄",()=>setView("book"),false)
+  );
+}
+
+function showComplete(){
+  current=null;
+  state.active=null;
+  save();
+
+  game.innerHTML=`
+    <h2>🏆 恭喜！你已成為成語總探長</h2>
+    <p>36個成語及詞語都已通過獨立考核。</p>
+    <p>最高連續一次過破案：${state.best} 回合。</p>
+    <p>
+      你可以到學習紀錄查看詞義、正例及對話改句，
+      或繼續鞏固。
+    </p>
+    <div id="endButtons" class="row"></div>
+  `;
+
+  $("endButtons").append(
+    action("再玩鞏固回合",()=>{
+      const eligible=orderedRecords().filter(x=>
+        x.r.master && x.r.next<=state.done
+      );
+
+      if(eligible.length){
+        startRound(earliest(eligible)[0].i,true,true);
+      }
+    }),
+    action("查看學習紀錄",()=>setView("book"),false)
+  );
+}
+
+/* ---------- 學習紀錄 ---------- */
+
+function renderBook(){
+  const panel=$("bookPanel");
+  const c=counts();
+
+  panel.innerHTML=`
+    <h2>📚 學習進度簿</h2>
+    <p>已接觸 ${c.seen}／36 個詞語；已掌握 ${c.master}／36 個。</p>
+    <p class="small">
+      答對一次不等於熟練；需要通過延後覆習。
+      若鞏固時答錯，會返回「練習中」。
+    </p>
+    <div id="bookActions" class="row"></div>
+    <p class="small">
+      題目次序會隨進度儲存。只有確認重置後才會重新洗牌。
+    </p>
+    <div id="bookList" class="bank"></div>
+  `;
+
+  const resetButton=action("↺ 重置學習任務",requestReset,false);
+  resetButton.classList.add("danger");
+
+  $("bookActions").append(
+    action("返回遊戲",()=>setView("game")),
+    action("下載學習紀錄",download,false),
+    resetButton
+  );
+
+  // 進度簿維持題庫原來分類，不隨遊戲出題次序跳動。
+  DATA.forEach((q,i)=>{
+    const r=state.records[i];
+    const div=document.createElement("article");
+    div.className="wordcard";
+
+    const status=r.master
+      ? "🏆 已掌握"
+      : r.seen?"✏️ 練習中":"📘 待學習";
+
+    div.innerHTML=`
+      <h3>${esc(q.w)}<span class="tag">${status}</span></h3>
+      <p class="small">
+        ${i<18?"成語":"詞語"}｜已完成 ${r.tries} 次考核
+      </p>
+      ${
+        r.seen
+          ? `
+            <p>${esc(q.m)}</p>
+            <details>
+              <summary>重溫教學及正例</summary>
+              <p><b>對話證據：</b>${esc(q.r[0])}</p>
+              <p><b>改句：</b>${rich(repair(q))}</p>
+              <p><b>正例：</b>${esc(q.yes[0])}</p>
+              <p><b>反例：</b>${esc(q.no[0])}</p>
+            </details>
+          `
+          : `
+            <p class="small">
+              完成專題回合後，這裏會收錄詞義、改句和例子。
+            </p>
+          `
+      }
+    `;
+
+    $("bookList").append(div);
+  });
+}
+
+function download(){
+  let text="成語臥底聊天室・學習紀錄\n";
+  text+="日期："+new Date().toLocaleDateString("zh-HK")+"\n";
+  text+="已完成回合："+state.done+"\n";
+  text+="最高連勝："+state.best+"\n\n";
+
+  DATA.forEach((q,i)=>{
+    const r=state.records[i];
+
+    text+=q.w+"｜"+
+      (r.master?"已掌握":r.seen?"練習中":"待學習")+
+      "｜已考核"+r.tries+"次\n";
+
+    if(r.seen){
+      text+="意思："+q.m+"\n";
+      text+="正例："+q.yes[0]+"\n";
+    }
+
+    text+="\n";
+  });
+
+  text+="註：此檔案是閱讀用學習報告，不是可匯入的進度備份。\n";
+
+  const blob=new Blob(["\ufeff"+text],{
+    type:"text/plain;charset=utf-8"
+  });
+
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="成語聊天室學習紀錄.txt";
+  document.body.append(a);
+  a.click();
+  a.remove();
+
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+/* ---------- 歡迎對話框 ---------- */
+
+function showWelcome(){
+  if(!ready)return;
+
+  const dialog=$("detectiveWelcome");
+
+  if(typeof dialog.showModal==="function"){
+    if(!dialog.open){
+      dialog.showModal();
+    }
+  }else{
+    // 較舊瀏覽器的簡單後備提示。
+    window.alert(
+      "🕵️ 偵探助手\n\n"+
+      "三位同學正在聊天，只有一位用錯詞語。\n\n"+
+      "1. 讀一讀：看完三位同學說的話。\n"+
+      "2. 找一找：選出用錯詞語的人，再選原因。\n"+
+      "3. 試一試：換個新情境，再答一題！\n\n"+
+      "不用鬥快，答錯也不扣分！"
+    );
+  }
+}
+
+/* ---------- 重置：先確認，再執行 ---------- */
+
+function requestReset(){
+  if(!ready || resetBusy)return;
+
+  const dialog=$("resetDialog");
+
+  if(typeof dialog.showModal==="function"){
+    if(!dialog.open){
+      dialog.showModal();
+      $("cancelReset").focus();
+    }
+  }else{
+    const confirmed=window.confirm(
+      "要重新開始嗎？\n\n"+
+      "已掌握、練習紀錄、完成回合及連勝次數都會清除，"+
+      "題目也會重新隨機排列。\n\n"+
+      "清除後不能復原。\n\n"+
+      "按「確定」重置；按「取消」保留進度。"
+    );
+
+    if(confirmed){
+      performReset();
+    }
+  }
+}
+
+function performReset(){
+  if(!ready || resetBusy)return;
+  resetBusy=true;
+
+  try{
+    const resetDialog=$("resetDialog");
+    if(resetDialog.open){
+      resetDialog.close();
+    }
+
+    // 只重置本遊戲；不使用 localStorage.clear()。
+    state=blank();
+    current=null;
+
+    save();
+    updateStats();
+    chooseNext();
+
+    window.scrollTo(0,0);
+    showWelcome();
+  }finally{
+    resetBusy=false;
+  }
+}
+
+/* ---------- 事件 ---------- */
+
+$("gameTab").addEventListener("click",()=>setView("game"));
+$("bookTab").addEventListener("click",()=>setView("book"));
+$("helpTab").addEventListener("click",()=>setView("help"));
+
+$("showWelcomeButton").addEventListener("click",showWelcome);
+
+$("detectiveWelcomeStart").addEventListener("click",()=>{
+  $("detectiveWelcome").close();
+});
+
+$("cancelReset").addEventListener("click",()=>{
+  $("resetDialog").close();
+});
+
+$("confirmReset").addEventListener("click",performReset);
+
+// Escape 採用 dialog 原生取消行為，只關閉，不清除資料。
+// 不在 close 或 cancel 事件中執行重置，避免誤刪。
+
+/* ---------- 啟動 ---------- */
+
+try{
+  validate();
+
+  state=load();
+  prepareSession();
+
+  // 第一次開啟，即使尚未答題，也先保存隨機次序。
+  save();
+  updateStats();
+
+  if(state.active){
+    const a=state.active;
+    startRound(a.index,a.review,a.maintenance);
+  }else{
+    chooseNext();
+  }
+
+  ready=true;
+
+  // 每次開啟頁面顯示玩法；確認重置後也會再顯示。
+  showWelcome();
+
+}catch(e){
+  console.error(e);
+  ready=false;
+
+  game.innerHTML=
+    "<h2>⚠️ 遊戲未能完成初始化</h2>"+
+    "<p>"+esc(e.message)+"</p>"+
+    "<p>請確認整份 HTML 已完整複製，包括36組題庫及結尾標籤。</p>";
+}
+</script>
+</body>
+</html>
